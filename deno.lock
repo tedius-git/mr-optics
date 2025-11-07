@@ -1,0 +1,43 @@
+{
+  "version": "5",
+  "specifiers": {
+    "npm:@preact/signals@^2.3.2": "2.3.2_preact@10.27.2",
+    "npm:htm@*": "3.1.1",
+    "npm:preact@*": "10.27.2",
+    "npm:preact@^10.23.1": "10.27.2"
+  },
+  "npm": {
+    "@preact/signals-core@1.12.1": {
+      "integrity": "sha512-BwbTXpj+9QutoZLQvbttRg5x3l5468qaV2kufh+51yha1c53ep5dY4kTuZR35+3pAZxpfQerGJiQqg34ZNZ6uA=="
+    },
+    "@preact/signals@2.3.2_preact@10.27.2": {
+      "integrity": "sha512-Q22avIn4z0BQnmFeo6Y5HCnJTo8VufN84zN51OtqeNgZOVCYgdwEOcJKVX1x/IrjRVxUnOy6Ubn7H5aVFujXaQ==",
+      "dependencies": [
+        "@preact/signals-core",
+        "preact"
+      ]
+    },
+    "htm@3.1.1": {
+      "integrity": "sha512-983Vyg8NwUE7JkZ6NmOqpCZ+sh1bKv2iYTlUkzlWmA5JD2acKoxd4KVxbMmxX/85mtfdnDmTFoNKcg5DGAvxNQ=="
+    },
+    "preact@10.27.2": {
+      "integrity": "sha512-5SYSgFKSyhCbk6SrXyMpqjb5+MQBgfvEKE/OC+PujcY34sOpqtr+0AZQtPYx5IA6VxynQ7rUPCtKzyovpj9Bpg=="
+    }
+  },
+  "redirects": {
+    "https://esm.sh/htm": "https://esm.sh/htm@3.1.1",
+    "https://esm.sh/preact": "https://esm.sh/preact@10.27.2"
+  },
+  "remote": {
+    "https://esm.sh/htm@3.1.1": "563658bc68f6b699f6d19d8fa5ef628c19acb8fc6ce7a0858415dba6b2069ff0",
+    "https://esm.sh/htm@3.1.1/denonext/htm.mjs": "6c0d0967b9cc95f4f7db768425d3992757d814f95b0a7fc963a904b25bd7b873",
+    "https://esm.sh/preact@10.27.2": "3aff415ce76d0d09dcaa5b51e636f7309ae3cb8faae26ef2177ab433b8834701",
+    "https://esm.sh/preact@10.27.2/denonext/preact.mjs": "9bdadca1e1a6732eab00de7e38cb26c08ec277fa2dddbfb2d5259e54b15450bb"
+  },
+  "workspace": {
+    "dependencies": [
+      "npm:@preact/signals@^2.3.2",
+      "npm:preact@^10.23.1"
+    ]
+  }
+}

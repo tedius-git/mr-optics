@@ -1,0 +1,15 @@
+{
+  "tasks": {
+    "dev": "deno run -ENR jsr:@std/http/file-server --port 8000 .",
+    "build": "deno bundle --watch --platform=browser --outdir dist src/main.tsx",
+    "start": "deno task build & deno task dev"
+  },
+  "imports": {
+    "@preact/signals": "npm:@preact/signals@^2.3.2",
+    "preact": "npm:preact@^10.23.1"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
+  }
+}

@@ -379,6 +379,17 @@ function h2(n3, u5, i5) {
   }
   return o4.__N || o4.__;
 }
+function y2(n3, u5) {
+  var i5 = p2(t2++, 3);
+  !c2.__s && C2(i5.__H, u5) && (i5.__ = n3, i5.u = u5, r2.__H.__h.push(i5));
+}
+function A2(n3) {
+  return o2 = 5, T2(function() {
+    return {
+      current: n3
+    };
+  }, []);
+}
 function T2(n3, r4) {
   var u5 = p2(t2++, 7);
   return C2(u5.__H, r4) && (u5.__ = n3(), u5.__H = r4, u5.__h = n3), u5.__;
@@ -671,7 +682,7 @@ function l3(i5) {
   }
   i5.s = r4;
 }
-function y2(i5, t4) {
+function y3(i5, t4) {
   u4.call(this, void 0);
   this.x = i5;
   this.s = void 0;
@@ -681,8 +692,8 @@ function y2(i5, t4) {
   this.Z = null == t4 ? void 0 : t4.unwatched;
   this.name = null == t4 ? void 0 : t4.name;
 }
-y2.prototype = new u4();
-y2.prototype.h = function() {
+y3.prototype = new u4();
+y3.prototype.h = function() {
   this.f &= -3;
   if (1 & this.f) return false;
   if (32 == (36 & this.f)) return true;
@@ -714,14 +725,14 @@ y2.prototype.h = function() {
   this.f &= -2;
   return true;
 };
-y2.prototype.S = function(i5) {
+y3.prototype.S = function(i5) {
   if (void 0 === this.t) {
     this.f |= 36;
     for (var t4 = this.s; void 0 !== t4; t4 = t4.n) t4.S.S(t4);
   }
   u4.prototype.S.call(this, i5);
 };
-y2.prototype.U = function(i5) {
+y3.prototype.U = function(i5) {
   if (void 0 !== this.t) {
     u4.prototype.U.call(this, i5);
     if (void 0 === this.t) {
@@ -730,13 +741,13 @@ y2.prototype.U = function(i5) {
     }
   }
 };
-y2.prototype.N = function() {
+y3.prototype.N = function() {
   if (!(2 & this.f)) {
     this.f |= 6;
     for (var i5 = this.t; void 0 !== i5; i5 = i5.x) i5.t.N();
   }
 };
-Object.defineProperty(y2.prototype, "value", {
+Object.defineProperty(y3.prototype, "value", {
   get: function() {
     if (1 & this.f) throw new Error("Cycle detected");
     var i5 = e3(this);
@@ -747,7 +758,7 @@ Object.defineProperty(y2.prototype, "value", {
   }
 });
 function w3(i5, t4) {
-  return new y2(i5, t4);
+  return new y3(i5, t4);
 }
 function _2(i5) {
   var r4 = i5.u;
@@ -1070,23 +1081,241 @@ function F2() {
   if (1 === m3.push(this)) (l.requestAnimationFrame || q2)(x2);
 }
 
+// src/lenses.ts
+function calcRadius(power, index, type) {
+  if (power === 0) {
+    return null;
+  }
+  if (type === "biconvex") {
+    return 2 * (index - 1) / power;
+  } else {
+    return 2 * (index - 1) / power;
+  }
+}
+
+// src/Config.tsx
+var nextId = 1;
+var addLens = (lenses2) => {
+  if (lenses2.value.length < 3) {
+    lenses2.value = [
+      ...lenses2.value,
+      {
+        id: nextId++,
+        type: "biconvex",
+        index: 1.5
+      }
+    ];
+  }
+};
+var deleteLens = (lenses2, id) => {
+  lenses2.value = lenses2.value.filter((l4) => l4.id !== id);
+};
+var updateLensPower = (lenses2, id, newPower) => {
+  lenses2.value = lenses2.value.map((l4) => {
+    if (l4.id === id) {
+      const radius = calcRadius(newPower, l4.index, l4.type);
+      return {
+        ...l4,
+        power: newPower,
+        r: radius ?? void 0
+      };
+    }
+    return l4;
+  });
+};
+var updateLensIndex = (lenses2, id, newIndex) => {
+  if (newIndex >= 1.5) {
+    lenses2.value = lenses2.value.map((l4) => {
+      if (l4.id === id && l4.power) {
+        const radius = calcRadius(l4.power, newIndex, l4.type);
+        return {
+          ...l4,
+          index: newIndex,
+          r: radius ?? void 0
+        };
+      } else if (l4.id === id) {
+        return {
+          ...l4,
+          index: newIndex
+        };
+      }
+      return l4;
+    });
+  }
+};
+var LensConfig = ({ lens, lenses: lenses2 }) => {
+  const powerId = `power-${lens.id}`;
+  const indexId = `index-${lens.id}`;
+  return /* @__PURE__ */ u2("div", {
+    className: "entry",
+    children: [
+      /* @__PURE__ */ u2("label", {
+        htmlFor: powerId,
+        children: "Potencia"
+      }),
+      /* @__PURE__ */ u2("input", {
+        id: powerId,
+        name: "Power",
+        type: "number",
+        step: "0.1",
+        value: lens.power || "",
+        onChange: (e4) => {
+          const newPower = parseFloat(e4.currentTarget.value);
+          if (!isNaN(newPower) && newPower !== 0) {
+            updateLensPower(lenses2, lens.id, newPower);
+          }
+        }
+      }),
+      /* @__PURE__ */ u2("label", {
+        htmlFor: indexId,
+        children: "Indice"
+      }),
+      /* @__PURE__ */ u2("input", {
+        id: indexId,
+        name: "index",
+        type: "number",
+        min: "1.5",
+        step: "0.1",
+        value: lens.index,
+        onChange: (e4) => {
+          const newIndex = parseFloat(e4.currentTarget.value);
+          if (!isNaN(newIndex) && newIndex >= 1.5) {
+            updateLensIndex(lenses2, lens.id, newIndex);
+          }
+        },
+        onBlur: (e4) => {
+          const currentValue = parseFloat(e4.currentTarget.value);
+          if (isNaN(currentValue) || currentValue < 1.5) {
+            updateLensIndex(lenses2, lens.id, 1.5);
+          }
+        }
+      }),
+      /* @__PURE__ */ u2("p", {
+        children: [
+          "R:",
+          lens.r ? lens.r : ""
+        ]
+      }),
+      /* @__PURE__ */ u2("button", {
+        type: "button",
+        onClick: () => deleteLens(lenses2, lens.id),
+        children: "-"
+      })
+    ]
+  });
+};
+var LensConfigurator = ({ lenses: lenses2 }) => {
+  return /* @__PURE__ */ u2("div", {
+    className: "input",
+    children: [
+      /* @__PURE__ */ u2("div", {
+        children: /* @__PURE__ */ u2("button", {
+          type: "button",
+          className: "add-button",
+          onClick: () => addLens(lenses2),
+          children: "+"
+        })
+      }),
+      lenses2.value.map((lens) => /* @__PURE__ */ u2(LensConfig, {
+        lens,
+        lenses: lenses2
+      }, lens.id))
+    ]
+  });
+};
+
+// src/Renderer.tsx
+var LensRenderer = ({ lenses: lenses2 }) => {
+  const svgRef = A2(null);
+  const [dimensions, setDimensions] = d2({
+    width: 800,
+    height: 400
+  });
+  y2(() => {
+    const updateDimensions = () => {
+      if (svgRef.current) {
+        const rect = svgRef.current.getBoundingClientRect();
+        setDimensions({
+          width: rect.width,
+          height: rect.height
+        });
+      }
+    };
+    updateDimensions();
+    globalThis.addEventListener("resize", updateDimensions);
+    return () => globalThis.removeEventListener("resize", updateDimensions);
+  }, []);
+  const centerY = dimensions.height / 2;
+  const currentLenses = lenses2.value.filter((l4) => l4.r);
+  const lensesDistance = dimensions.width / (currentLenses.length + 1);
+  const h5 = 200;
+  return /* @__PURE__ */ u2("svg", {
+    ref: svgRef,
+    className: "renderer",
+    viewBox: `0 0 ${dimensions.width} ${dimensions.height}`,
+    preserveAspectRatio: "xMidYMid meet",
+    children: [
+      /* @__PURE__ */ u2("line", {
+        x1: 0,
+        y1: centerY,
+        x2: dimensions.width,
+        y2: centerY,
+        stroke: "#666",
+        "stroke-width": 2,
+        "stroke-dasharray": "10 5"
+      }),
+      currentLenses.map((lens, i5) => {
+        const lensCenterX = lensesDistance * (i5 + 1);
+        let d4;
+        if (lens.r && lens.r < 0) {
+          d4 = 15 / lens.r;
+        } else {
+          d4 = 0;
+        }
+        return /* @__PURE__ */ u2(k, {
+          children: [
+            /* @__PURE__ */ u2("line", {
+              x1: lensCenterX,
+              y1: dimensions.height / 3,
+              x2: lensCenterX,
+              y2: 2 * dimensions.height / 3,
+              stroke: "#000000",
+              "stroke-width": 2,
+              "stroke-dasharray": "20 10"
+            }, lens.id),
+            /* @__PURE__ */ u2("path", {
+              d: `
+M ${lensCenterX + d4 / 2},${centerY - h5 / 2}
+L ${lensCenterX - d4 / 2},${centerY - h5 / 2}
+M ${lensCenterX + d4 / 2},${centerY - h5 / 2}
+  A ${lens.r ? lens.r * 1e3 : 1},${lens.r ? lens.r * 1e3 : 1} 0 0 1 ${lensCenterX + d4 / 2} ${centerY + h5 / 2}
+L ${lensCenterX - d4 / 2},${centerY + h5 / 2}
+  A ${lens.r ? lens.r * 1e3 : 1},${lens.r ? lens.r * 1e3 : 1} 0 0 1 ${lensCenterX - d4 / 2} ${centerY - h5 / 2}
+`
+            })
+          ]
+        });
+      })
+    ]
+  });
+};
+
 // src/main.tsx
-var count = d3(0);
-var app = /* @__PURE__ */ u2("div", {
-  children: [
-    /* @__PURE__ */ u2("p", {
-      children: count
-    }),
-    /* @__PURE__ */ u2("button", {
-      type: "button",
-      onClick: () => count.value++,
-      children: "+"
-    }),
-    /* @__PURE__ */ u2("button", {
-      type: "button",
-      onClick: () => count.value--,
-      children: "-"
-    })
-  ]
-});
-G(app, document.body);
+var lenses = d3([]);
+var App = () => {
+  return /* @__PURE__ */ u2("div", {
+    className: "app",
+    children: [
+      /* @__PURE__ */ u2(LensConfigurator, {
+        lenses
+      }),
+      /* @__PURE__ */ u2(LensRenderer, {
+        lenses
+      })
+    ]
+  });
+};
+G(/* @__PURE__ */ u2(App, {}), document.body);
+export {
+  lenses
+};

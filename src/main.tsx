@@ -1,13 +1,18 @@
 import { render } from "preact";
 import { signal } from "@preact/signals";
+import { Lens } from "./lenses.ts";
+import { LensConfigurator } from "./Config.tsx";
+import { LensRenderer } from "./Renderer.tsx";
 
-const count = signal(0);
-const app = (
-  <div>
-    <p>{count}</p>
-    <button type="button" onClick={() => count.value++}>+</button>
-    <button type="button" onClick={() => count.value--}>-</button>
-  </div>
-);
+export const lenses = signal<Lens[]>([]);
 
-render(app, document.body);
+const App = () => {
+  return (
+    <div className="app">
+      <LensConfigurator lenses={lenses} />
+      <LensRenderer lenses={lenses} />
+    </div>
+  );
+};
+
+render(<App />, document.body);

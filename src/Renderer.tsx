@@ -53,7 +53,7 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
   // Only lenses with defined radius can be rendered
   const currentLenses = lenses.value.filter((l) => l.r);
 
-  const lensesDistance = dimensions.width / (currentLenses.length + 1);
+  const lensesDistance = (dimensions.width - 400) / (currentLenses.length + 1);
 
   const h = 200;
 
@@ -78,7 +78,7 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
       {/* Render each lens */}
       {currentLenses.map((lens, i) => {
         // Evenly spaced across the canvas
-        const lensCenterX = lensesDistance * (i + 1);
+        const lensCenterX = lensesDistance * (i + 1) + 200;
 
         // Calculate lens thickness offset (d)
         // For negative radius (diverging lenses), calculate thickness

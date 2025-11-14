@@ -53,9 +53,34 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
   // Only lenses with defined radius can be rendered
   const currentLenses = lenses.value.filter((l) => l.r);
 
-  const lensesDistance = (dimensions.width - 400) / (currentLenses.length + 1);
+  const lensesDistance = (dimensions.width) / (currentLenses.length + 1);
 
   const h = 200;
+
+  const calculateLensX = (i: number) => {
+    return lensesDistance * (i + 1);
+  };
+
+  /** Simplified: rays converge/diverge based on lens power
+   */
+  const simpleRayTrace = (startY: number, lenses: Lens[]): string => {
+    let pathData = `M 0 ${startY}`;
+    let currentY = startY;
+
+    lenses.forEach((lens, i) => {
+      const lensX = calculateLensX(i);
+
+      // Line to lens
+      pathData += ` L ${lensX} ${currentY}`;
+
+      // Deflection based on power and distance from axis
+      const deflection = lens.power * (currentY - centerY) * 0.25; // times 0.25 for better visualization
+      currentY -= deflection;
+    });
+
+    pathData += ` L ${dimensions.width} ${currentY}`;
+    return pathData;
+  };
 
   return (
     <svg
@@ -75,15 +100,33 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
         stroke-dasharray="10 5" // Dashed line pattern
       />
 
+      {/* Ray lines */}
+      {[1, 2, 3, 4].map((i) => {
+        return (
+          <>
+            <path
+              className="ray"
+              key={i}
+              d={simpleRayTrace(centerY - 20 * i, lenses.value)}
+            />
+            <path
+              className="ray"
+              key={i}
+              d={simpleRayTrace(centerY + 20 * i, lenses.value)}
+            />
+          </>
+        );
+      })}
+
       {/* Render each lens */}
       {currentLenses.map((lens, i) => {
         // Evenly spaced across the canvas
-        const lensCenterX = lensesDistance * (i + 1) + 200;
+        const lensCenterX = calculateLensX(i);
 
         // Calculate lens thickness offset (d)
         // For negative radius (diverging lenses), calculate thickness
         // For positive radius (converging lenses), thickness is 0
-        let d: number;
+        let d;
         if (lens.r && lens.r < 0) {
           d = 15 / lens.r;
         } else {
@@ -106,6 +149,7 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
 
             {/* Lens shape drawn as SVG path */}
             <path
+              className="lens"
               d={`
                 M ${lensCenterX + d / 2},${centerY - h / 2}
                 L ${lensCenterX - d / 2},${centerY - h / 2}

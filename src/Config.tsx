@@ -19,6 +19,8 @@ const addLens = (lenses: Signal<Lens[]>) => {
       id: nextId++, // Assign unique ID and increment counter
       type: "biconvex", // Default lens type
       index: 1.5, // Default refractive index (minimum allowed)
+      power: 6,
+      r: calcRadius(6, 1.5, "biconvex"),
     }];
   }
 };
@@ -47,7 +49,7 @@ const updateLensPower = (
       return {
         ...l, // Preserve all other properties
         power: newPower, // Update power
-        r: radius ?? undefined, // Update radius (handle null case)
+        r: radius, // Update radius (handle null case)
       };
     }
     // Return unchanged lens for non-matching IDs
@@ -68,16 +70,13 @@ const updateLensIndex = (
   if (newIndex >= 1.5) {
     lenses.value = lenses.value.map((l) => {
       // If lens has power defined, recalculate radius with new index
-      if (l.id === id && l.power) {
+      if (l.id === id) {
         const radius = calcRadius(l.power, newIndex, l.type);
         return {
           ...l,
           index: newIndex,
-          r: radius ?? undefined, // Update radius with new calculation
+          r: radius,
         };
-      } // If lens doesn't have power, just update index
-      else if (l.id === id) {
-        return { ...l, index: newIndex };
       }
       return l;
     });
@@ -145,7 +144,7 @@ const LensConfig = ({
       />
 
       {/* Display calculated radius of curvature */}
-      <p>R:{lens.r ? lens.r : ""}</p>
+      <p>R:{lens.r}</p>
 
       {/* Delete button for this lens */}
       <button type="button" onClick={() => deleteLens(lenses, lens.id)}>

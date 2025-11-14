@@ -1,18 +1,18 @@
 export type Lens = {
   id: number;
-  power?: number;
+  power: number;
   index: number;
   type: "biconvex" | "biconcave";
-  r?: number;
+  r: number;
 };
 
 export function calcRadius(
   power: number,
   index: number,
   type: "biconvex" | "biconcave",
-): number | null {
+): number {
   if (power === 0) {
-    return null;
+    return 0;
   }
 
   if (type === "biconvex") {

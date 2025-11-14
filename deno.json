@@ -2,7 +2,7 @@
   "tasks": {
     "dev": "deno run -ENR jsr:@std/http/file-server --port 8000 .",
     "bundle": "deno bundle --watch --platform=browser --outdir dist src/main.tsx",
-    "build": "deno bundle --platform=browser --outdir dist src/main.tsx",
+    "build": "deno bundle --platform=browser --minify --outdir dist src/main.tsx",
     "start": "deno task bundle & deno task dev"
   },
   "imports": {

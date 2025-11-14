@@ -15,8 +15,9 @@
 
 ## About
 
-[Mr. Optics]() is an educational tool designed to facilitate learning and
-experimentation with fundamental concepts of geometrical optics.
+[Mr. Optics](https://tedius-git.github.io/mr-optics/) is an educational tool
+designed to facilitate learning and experimentation with fundamental concepts of
+geometrical optics.
 
 ## Contributing
 

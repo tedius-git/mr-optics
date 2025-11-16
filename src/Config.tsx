@@ -10,9 +10,10 @@ let nextId = 1;
  * Maximum of 3 lenses allowed
  * New lenses are initialized with default values (biconvex, index 1.5)
  */
-const addLens = (lenses: Signal<Lens[]>) => {
+const addLens = (lenses: Signal<Lens[]>, distances: Signal<number[]>) => {
+  const length = lenses.value.length;
   // Enforce maximum limit of 3 lenses
-  if (lenses.value.length < 3) {
+  if (length < 3) {
     // Create new array with spread operator to maintain immutability
     // This triggers Preact signal updates properly
     lenses.value = [...lenses.value, {
@@ -23,13 +24,30 @@ const addLens = (lenses: Signal<Lens[]>) => {
       r: calcRadius(6, 1.5, "biconvex"),
     }];
   }
+  if (length > 0) {
+    distances.value = [...distances.value, 1.0];
+  }
 };
 
 /**
  * Removes a lens from the collection by ID
  */
-const deleteLens = (lenses: Signal<Lens[]>, id: number) => {
+const deleteLens = (
+  lenses: Signal<Lens[]>,
+  distances: Signal<number[]>,
+  id: number,
+) => {
+  const deletedIndex = lenses.value.findIndex((l) => l.id === id);
+
   lenses.value = lenses.value.filter((l) => l.id !== id);
+
+  // If we eliminate one other than the last, we eliminate that distance
+  // If we eliminate the last lenst, we eliminate the last distance
+  if (deletedIndex < lenses.value.length) {
+    distances.value = distances.value.filter((_, i) => i !== deletedIndex);
+  } else if (distances.value.length > 0) {
+    distances.value = distances.value.slice(0, -1);
+  }
 };
 
 /**
@@ -84,81 +102,128 @@ const updateLensIndex = (
 };
 
 /**
+ * Updates the distance between lenses
+ */
+const updateDistance = (
+  distances: Signal<number[]>,
+  index: number,
+  newDistance: number,
+) => {
+  if (!isNaN(newDistance) && newDistance >= 0.2) {
+    distances.value = distances.value.map((d, i) =>
+      i === index ? newDistance : d
+    );
+  }
+};
+
+/**
  * Individual lens configuration component
  * Renders input controls for a single lens
  */
 const LensConfig = ({
   lens,
   lenses,
+  distances,
 }: {
   lens: Lens;
   lenses: Signal<Lens[]>;
+  distances: Signal<number[]>;
 }) => {
   // Generate unique IDs for input accessibility
   const powerId = `power-${lens.id}`;
   const indexId = `index-${lens.id}`;
+  const lensIndex = lenses.value.indexOf(lens);
+  const distance = distances.value[lensIndex];
+  const distanceId = `distance-${lens.id}`;
 
   return (
-    <div className="entry">
-      {/* Delete button for this lens */}
-      {/* Power input field */}
-      <label htmlFor={powerId}>Potencia</label>
-      <input
-        id={powerId}
-        name="Power"
-        type="number"
-        step="0.1"
-        value={lens.power}
-        onChange={(e) => {
-          const newPower = parseFloat(e.currentTarget.value);
-          // Only update if valid number and not zero
-          // Zero power is excluded as it would create invalid optical calculations
-          if (!isNaN(newPower) && newPower !== 0) {
-            updateLensPower(lenses, lens.id, newPower);
-          }
-        }}
-      />
+    <>
+      <div className="entry">
+        {/* Delete button for this lens */}
+        {/* Power input field */}
+        <label htmlFor={powerId}>Potencia</label>
+        <input
+          id={powerId}
+          name="Power"
+          type="number"
+          step="0.1"
+          value={lens.power}
+          onChange={(e) => {
+            const newPower = parseFloat(e.currentTarget.value);
+            // Only update if valid number and not zero
+            // Zero power is excluded as it would create invalid optical calculations
+            if (!isNaN(newPower) && newPower !== 0) {
+              updateLensPower(lenses, lens.id, newPower);
+            }
+          }}
+        />
 
-      {/* Refractive index input field */}
-      <label htmlFor={indexId}>Indice</label>
-      <input
-        id={indexId}
-        name="index"
-        type="number"
-        min="1.5"
-        step="0.1"
-        value={lens.index}
-        onChange={(e) => {
-          const newIndex = parseFloat(e.currentTarget.value);
-          // Enforce minimum refractive index of 1.5
-          if (!isNaN(newIndex) && newIndex >= 1.5) {
-            updateLensIndex(lenses, lens.id, newIndex);
-          }
-        }}
-        onBlur={(e) => {
-          // Safety check: reset to minimum if user leaves field with invalid value
-          const currentValue = parseFloat(e.currentTarget.value);
-          if (isNaN(currentValue) || currentValue < 1.5) {
-            updateLensIndex(lenses, lens.id, 1.5);
-          }
-        }}
-      />
+        {/* Refractive index input field */}
+        <label htmlFor={indexId}>Indice</label>
+        <input
+          id={indexId}
+          name="index"
+          type="number"
+          min="1.5"
+          step="0.1"
+          value={lens.index}
+          onChange={(e) => {
+            const newIndex = parseFloat(e.currentTarget.value);
+            // Enforce minimum refractive index of 1.5
+            if (!isNaN(newIndex) && newIndex >= 1.5) {
+              updateLensIndex(lenses, lens.id, newIndex);
+            }
+          }}
+          onBlur={(e) => {
+            // Safety check: reset to minimum if user leaves field with invalid value
+            const currentValue = parseFloat(e.currentTarget.value);
+            if (isNaN(currentValue) || currentValue < 1.5) {
+              updateLensIndex(lenses, lens.id, 1.5);
+            }
+          }}
+        />
 
-      {/* Display calculated radius of curvature */}
-      <p>R: {Math.round(lens.r * 1000) / 1000}</p>
+        {/* Display calculated radius of curvature */}
+        <p>R: {Math.round(lens.r * 1000) / 1000}</p>
 
-      {/* Delete button */}
-      <button
-        type="button"
-        className="delete-button"
-        onClick={() => deleteLens(lenses, lens.id)}
-      >
-        <span class="icon">
-          <img src="./assets/delete.svg" />
-        </span>
-        <span class="text">Eliminar lente</span>
-      </button>
-    </div>
+        {/* Delete button */}
+        <button
+          type="button"
+          className="delete-button"
+          onClick={() => deleteLens(lenses, distances, lens.id)}
+        >
+          <span class="icon">
+            <img src="./assets/delete.svg" />
+          </span>
+          <span class="text">Eliminar lente</span>
+        </button>
+      </div>
+      {distance !== undefined
+        ? (
+          <div className="entry">
+            <label htmlFor={distanceId}>Distancia</label>
+            <input
+              id={distanceId}
+              name="distance"
+              type="number"
+              min="0.2"
+              step="0.1"
+              value={distance}
+              onChange={(e) => {
+                const newDistance = parseFloat(e.currentTarget.value);
+                updateDistance(distances, lensIndex, newDistance);
+              }}
+              onBlur={(e) => {
+                const currentValue = parseFloat(e.currentTarget.value);
+                if (isNaN(currentValue) || currentValue < 0.2) {
+                  updateDistance(distances, lensIndex, 0.2);
+                }
+              }}
+            />
+          </div>
+        )
+        : null}
+    </>
   );
 };
 
@@ -166,7 +231,12 @@ const LensConfig = ({
  * Main configurator component
  * Manages the collection of lenses and renders individual lens configs
  */
-export const LensConfigurator = ({ lenses }: { lenses: Signal<Lens[]> }) => {
+export const LensConfigurator = (
+  { lenses, distances }: {
+    lenses: Signal<Lens[]>;
+    distances: Signal<number[]>;
+  },
+) => {
   return (
     <div className="input">
       {/* Add lens button */}
@@ -175,7 +245,7 @@ export const LensConfigurator = ({ lenses }: { lenses: Signal<Lens[]> }) => {
         className="add-button"
         title="3 Max"
         disabled={lenses.value.length >= 3}
-        onClick={() => addLens(lenses)}
+        onClick={() => addLens(lenses, distances)}
       >
         <span class="icon">
           <img src="./assets/add.svg" />
@@ -189,6 +259,7 @@ export const LensConfigurator = ({ lenses }: { lenses: Signal<Lens[]> }) => {
           key={lens.id}
           lens={lens}
           lenses={lenses}
+          distances={distances}
         />
       ))}
     </div>

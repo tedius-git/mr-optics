@@ -4,6 +4,7 @@ import { Lens } from "./lenses.ts";
 
 interface RendererProps {
   lenses: Signal<Lens[]>;
+  distances: Signal<number[]>;
 }
 
 const DotGrid = (props: { width: number; height: number }) => {
@@ -39,10 +40,9 @@ const DotGrid = (props: { width: number; height: number }) => {
 
 /**
  * SVG-based renderer component that visualizes optical lenses
- * Displays lenses as curved shapes along an optical axis
- * TODO: Responsive to window resizing
+ * Displays lenses as curved shapes along an optical axis with configurable distances
  */
-export const LensRenderer = ({ lenses }: RendererProps) => {
+export const LensRenderer = ({ lenses, distances }: RendererProps) => {
   // Reference to the SVG element for dimension calculations
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -84,12 +84,28 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
   // Only lenses with defined radius can be rendered
   const currentLenses = lenses.value.filter((l) => l.r);
 
-  const lensesDistance = (dimensions.width) / (currentLenses.length + 1);
-
   const h = dimensions.height / 3;
 
-  const calculateLensX = (i: number) => {
-    return lensesDistance * (i + 1);
+  /**
+   * Calculate lens X position based on distances
+   * Uses cumulative distances to position each lens
+   */
+  const calculateLensX = (index: number): number => {
+    if (index === 0) {
+      // First lens at a fixed starting position
+      return 200;
+    }
+
+    // Calculate cumulative distance from previous lenses
+    let totalDistance = 200; // Starting position
+    const pixelsPerMeter = 200; // Scale factor: 200 pixels = 1 meter
+
+    for (let i = 0; i < index; i++) {
+      const distance = distances.value[i] || 1.0; // Default 1m if not set
+      totalDistance += distance * pixelsPerMeter;
+    }
+
+    return totalDistance;
   };
 
   /** Simplified: rays converge/diverge based on lens power
@@ -109,23 +125,32 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
       currentY -= deflection;
     });
 
-    pathData += ` L ${dimensions.width} ${currentY}`;
+    // Calculate total width needed
+    const lastLensX = calculateLensX(lenses.length - 1);
+    const endX = Math.max(dimensions.width, lastLensX + 100);
+    pathData += ` L ${endX} ${currentY}`;
     return pathData;
   };
+
+  // Calculate required width based on lens positions
+  const lastLensX = currentLenses.length > 0
+    ? calculateLensX(currentLenses.length - 1) + 100
+    : dimensions.width;
+  const viewBoxWidth = Math.max(dimensions.width, lastLensX);
 
   return (
     <svg
       ref={svgRef}
       className="renderer"
-      viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
+      viewBox={`0 0 ${viewBoxWidth} ${dimensions.height}`}
       preserveAspectRatio="xMidYMid meet" // Maintain aspect ratio when scaling
     >
-      <DotGrid width={dimensions.width} height={dimensions.height} />
+      <DotGrid width={viewBoxWidth} height={dimensions.height} />
       {/* Optical axis - horizontal dashed line through center */}
       <line
         x1={0}
         y1={centerY}
-        x2={dimensions.width}
+        x2={viewBoxWidth}
         y2={centerY}
         stroke="#666"
         stroke-width={2}
@@ -138,13 +163,13 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
           <>
             <path
               className="ray"
-              key={i}
+              key={`ray-up-${i}`}
               // h / 8 because there are 4 rays in one half of a lens
               d={simpleRayTrace(centerY - (h / 8) * i, lenses.value)}
             />
             <path
               className="ray"
-              key={i}
+              key={`ray-down-${i}`}
               d={simpleRayTrace(centerY + (h / 8) * i, lenses.value)}
             />
           </>
@@ -153,7 +178,6 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
 
       {/* Render each lens */}
       {currentLenses.map((lens, i) => {
-        // Evenly spaced across the canvas
         const lensCenterX = calculateLensX(i);
 
         // Calculate lens thickness offset (d)
@@ -167,10 +191,9 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
         }
 
         return (
-          <>
+          <g key={lens.id}>
             {/* Optical Axis (dashed) */}
             <line
-              key={lens.id}
               x1={lensCenterX}
               y1={h - 20} // - 20 so it goes above de lens for better looks
               x2={lensCenterX}
@@ -195,12 +218,23 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
                 lens.r ? lens.r * 1000 : 1
               } 0 0 1 ${lensCenterX - d / 2} ${centerY - h / 2}
               `}
-              // M = Move to top center
-              // L = Line to top edge
-              // A = Arc for curved lens surface
-              // Radius multiplied by 1000 for visual scaling
             />
-          </>
+
+            {/* Distance label */}
+            {i < currentLenses.length - 1 && distances.value[i] !== undefined &&
+              (
+                <text
+                  x={(lensCenterX + calculateLensX(i + 1)) / 2}
+                  y={centerY + h / 2 + 30}
+                  text-anchor="middle"
+                  fill="var(--black)"
+                  font-size="14"
+                  font-weight="bold"
+                >
+                  {distances.value[i].toFixed(2)}
+                </text>
+              )}
+          </g>
         );
       })}
     </svg>

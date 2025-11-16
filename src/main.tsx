@@ -5,12 +5,13 @@ import { LensConfigurator } from "./Config.tsx";
 import { LensRenderer } from "./Renderer.tsx";
 
 export const lenses = signal<Lens[]>([]);
+export const distances = signal<number[]>([]);
 
 const App = () => {
   return (
     <div className="app">
-      <LensConfigurator lenses={lenses} />
-      <LensRenderer lenses={lenses} />
+      <LensConfigurator lenses={lenses} distances={distances} />
+      <LensRenderer lenses={lenses} distances={distances} />
     </div>
   );
 };

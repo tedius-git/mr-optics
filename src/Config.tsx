@@ -154,7 +154,7 @@ const LensConfig = ({
         onClick={() => deleteLens(lenses, lens.id)}
       >
         <span class="icon">
-          <img src="./../assets/delete.svg" />
+          <img src="/assets/delete.svg" />
         </span>
         <span class="text">Eliminar lente</span>
       </button>
@@ -178,7 +178,7 @@ export const LensConfigurator = ({ lenses }: { lenses: Signal<Lens[]> }) => {
         onClick={() => addLens(lenses)}
       >
         <span class="icon">
-          <img src="./../assets/add.svg" />
+          <img src="/assets/add.svg" />
         </span>
         <span class="text">Añadir lente</span>
       </button>

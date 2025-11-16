@@ -145,6 +145,10 @@ body {
   flex-shrink: 0;
 }
 
+.input button .icon {
+  filter: invert(100%);
+}
+
 .input button:disabled {
   cursor: not-allowed;
   opacity: 0.38;
@@ -166,9 +170,7 @@ body {
 }
 
 .add-button .icon {
-  font-size: 24px;
   transition: opacity 0.3s cubic-bezier(0.2, 0, 0, 1);
-  color: var(--black);
 }
 
 .add-button .text {
@@ -202,14 +204,63 @@ body {
 
 /* Delete Button */
 .delete-button {
-  grid-column: 1 / -1;
-  width: 100%;
+  grid-column: 2;
+  width: 40px;
   height: 40px;
-  padding: 0 24px;
+  padding: 0;
   background-color: var(--light-red);
-  border-radius: 20px;
+  border-radius: 100%;
   font-size: 14px;
   letter-spacing: 0.1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: end;
+}
+
+.delete-button .icon {
+  transition: opacity 0.3s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.delete-button .text {
+  font-size: 14px;
+  font-weight: 600;
+  position: absolute;
+  opacity: 0;
+  white-space: nowrap;
+  transition: opacity 0.3s cubic-bezier(0.2, 0, 0, 1);
+  letter-spacing: 0.1px;
+  color: var(--black);
+}
+
+.delete-button:hover {
+  width: 100%;
+  border-radius: 50px;
+  background-color: var(--light-red);
+}
+
+.delete-button:hover .icon {
+  opacity: 0;
+}
+
+.delete-button:hover .text {
+  opacity: 1;
+}
+
+.delete-button:active {
+  background-color: var(--red);
+  color: var(--white);
+  transform: scale(0.98);
+}
+
+/* Info Button */
+.info-button {
+  width: 40px;
+  height: 40px;
+  background-color: var(--dark-gray);
+  border-radius: 100%;
+  justify-content: center;
+  align-self: center;
 }
 
 .delete-button:hover {

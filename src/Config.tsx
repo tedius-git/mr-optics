@@ -146,12 +146,17 @@ const LensConfig = ({
 
       {/* Display calculated radius of curvature */}
       <p>R: {Math.round(lens.r * 1000) / 1000}</p>
+
+      {/* Delete button */}
       <button
         type="button"
         className="delete-button"
         onClick={() => deleteLens(lenses, lens.id)}
       >
-        -
+        <span class="icon">
+          <img src="./../assets/delete.svg" />
+        </span>
+        <span class="text">Eliminar lente</span>
       </button>
     </div>
   );
@@ -171,9 +176,10 @@ export const LensConfigurator = ({ lenses }: { lenses: Signal<Lens[]> }) => {
         title="3 Max"
         disabled={lenses.value.length >= 3}
         onClick={() => addLens(lenses)}
-        // TODO: Could add disabled state when length >= 3
       >
-        <span class="icon">+</span>
+        <span class="icon">
+          <img src="./../assets/add.svg" />
+        </span>
         <span class="text">Añadir lente</span>
       </button>
 

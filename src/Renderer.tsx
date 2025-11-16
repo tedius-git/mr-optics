@@ -54,28 +54,28 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
    * Updates dimensions when component mounts or window resizes
    */
   useEffect(() => {
-    /**
-     * Measures the actual rendered size of the SVG element
-     * and updates the dimensions state
-     */
+    if (!svgRef.current) return;
+
     const updateDimensions = () => {
-      if (svgRef.current) {
-        const rect = svgRef.current.getBoundingClientRect();
-        setDimensions({
-          width: rect.width,
-          height: rect.height,
-        });
-      }
+      if (!svgRef.current) return;
+      const rect = svgRef.current.getBoundingClientRect();
+      setDimensions({
+        width: rect.width,
+        height: rect.height,
+      });
     };
 
-    // Initial dimension calculation
+    // Observa cambios del tamaño del SVG
+    const observer = new ResizeObserver(() => {
+      updateDimensions();
+    });
+
+    observer.observe(svgRef.current);
+
+    // Inicial
     updateDimensions();
 
-    // Listen for window resize events
-    globalThis.addEventListener("resize", updateDimensions);
-
-    // Cleanup: remove event listener when component unmounts
-    return () => globalThis.removeEventListener("resize", updateDimensions);
+    return () => observer.disconnect();
   }, []);
 
   // Calculate vertical center of the canvas (optical axis position)
@@ -86,7 +86,7 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
 
   const lensesDistance = (dimensions.width) / (currentLenses.length + 1);
 
-  const h = 200;
+  const h = dimensions.height / 3;
 
   const calculateLensX = (i: number) => {
     return lensesDistance * (i + 1);
@@ -139,12 +139,13 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
             <path
               className="ray"
               key={i}
-              d={simpleRayTrace(centerY - 20 * i, lenses.value)}
+              // h / 8 because there are 4 rays in one half of a lens
+              d={simpleRayTrace(centerY - (h / 8) * i, lenses.value)}
             />
             <path
               className="ray"
               key={i}
-              d={simpleRayTrace(centerY + 20 * i, lenses.value)}
+              d={simpleRayTrace(centerY + (h / 8) * i, lenses.value)}
             />
           </>
         );
@@ -171,9 +172,9 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
             <line
               key={lens.id}
               x1={lensCenterX}
-              y1={dimensions.height / 3}
+              y1={h - 20} // - 20 so it goes above de lens for better looks
               x2={lensCenterX}
-              y2={2 * dimensions.height / 3}
+              y2={2 * h + 20}
               stroke="#000000"
               stroke-width={2}
               stroke-dasharray="10 5" // Dashed line pattern

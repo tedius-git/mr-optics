@@ -332,3 +332,24 @@ body {
   opacity: 0;
   transition: 0s;
 }
+
+/* Media query for mobile */
+@media (max-width: 768px) {
+  .app {
+    flex-direction: column;
+  }
+
+  .input {
+    width: 100%;
+    min-width: unset;
+    height: auto;
+    max-height: 50vh;
+    order: 2; /* The input goes at the bottom */
+  }
+
+  .renderer {
+    width: calc(100% - 32px);
+    height: 50vh;
+    order: 1; /* The renderer goes at the top */
+  }
+}

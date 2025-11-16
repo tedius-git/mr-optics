@@ -100,6 +100,7 @@ const LensConfig = ({
 
   return (
     <div className="entry">
+      {/* Delete button for this lens */}
       {/* Power input field */}
       <label htmlFor={powerId}>Potencia</label>
       <input
@@ -107,7 +108,7 @@ const LensConfig = ({
         name="Power"
         type="number"
         step="0.1"
-        value={lens.power || ""} // Show empty string if power undefined
+        value={lens.power}
         onChange={(e) => {
           const newPower = parseFloat(e.currentTarget.value);
           // Only update if valid number and not zero
@@ -144,10 +145,12 @@ const LensConfig = ({
       />
 
       {/* Display calculated radius of curvature */}
-      <p>R:{lens.r}</p>
-
-      {/* Delete button for this lens */}
-      <button type="button" onClick={() => deleteLens(lenses, lens.id)}>
+      <p>R: {Math.round(lens.r * 1000) / 1000}</p>
+      <button
+        type="button"
+        className="delete-button"
+        onClick={() => deleteLens(lenses, lens.id)}
+      >
         -
       </button>
     </div>
@@ -162,21 +165,22 @@ export const LensConfigurator = ({ lenses }: { lenses: Signal<Lens[]> }) => {
   return (
     <div className="input">
       {/* Add lens button */}
-      <div>
-        <button
-          type="button"
-          className="add-button"
-          onClick={() => addLens(lenses)}
-          // TODO: Could add disabled state when length >= 3
-        >
-          +
-        </button>
-      </div>
+      <button
+        type="button"
+        className="add-button"
+        title="3 Max"
+        disabled={lenses.value.length >= 3}
+        onClick={() => addLens(lenses)}
+        // TODO: Could add disabled state when length >= 3
+      >
+        <span class="icon">+</span>
+        <span class="text">Añadir lente</span>
+      </button>
 
       {/* Render configuration panel for each lens */}
       {lenses.value.map((lens) => (
         <LensConfig
-          key={lens.id} // Unique key for React reconciliation
+          key={lens.id}
           lens={lens}
           lenses={lenses}
         />

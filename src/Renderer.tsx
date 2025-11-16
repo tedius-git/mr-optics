@@ -6,6 +6,37 @@ interface RendererProps {
   lenses: Signal<Lens[]>;
 }
 
+const DotGrid = (props: { width: number; height: number }) => {
+  const spacing = 20;
+  const dotRadius = 2;
+  return (
+    <>
+      <defs>
+        <pattern
+          id="dotPattern"
+          x="0"
+          y="0"
+          width={spacing}
+          height={spacing}
+          patternUnits="userSpaceOnUse"
+        >
+          <circle
+            cx={spacing / 2}
+            cy={spacing / 2}
+            r={dotRadius}
+            fill="var(--dark-gray)"
+          />
+        </pattern>
+      </defs>
+      <rect
+        width={props.width + 20}
+        height={props.height + 20}
+        fill="url(#dotPattern)"
+      />
+    </>
+  );
+};
+
 /**
  * SVG-based renderer component that visualizes optical lenses
  * Displays lenses as curved shapes along an optical axis
@@ -89,6 +120,7 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
       viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
       preserveAspectRatio="xMidYMid meet" // Maintain aspect ratio when scaling
     >
+      <DotGrid width={dimensions.width} height={dimensions.height} />
       {/* Optical axis - horizontal dashed line through center */}
       <line
         x1={0}
@@ -97,7 +129,7 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
         y2={centerY}
         stroke="#666"
         stroke-width={2}
-        stroke-dasharray="10 5" // Dashed line pattern
+        stroke-dasharray="20 10"
       />
 
       {/* Ray lines */}
@@ -144,7 +176,7 @@ export const LensRenderer = ({ lenses }: RendererProps) => {
               y2={2 * dimensions.height / 3}
               stroke="#000000"
               stroke-width={2}
-              stroke-dasharray="20 10"
+              stroke-dasharray="10 5" // Dashed line pattern
             />
 
             {/* Lens shape drawn as SVG path */}

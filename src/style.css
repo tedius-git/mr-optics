@@ -18,6 +18,17 @@
     0 4px 8px 3px rgba(0, 0, 0, 0.15), 0 1px 3px 0 rgba(0, 0, 0, 0.3);
 }
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   font-family: "Nunito", sans-serif;
   font-optical-sizing: auto;
@@ -32,7 +43,6 @@ body {
   flex-direction: row;
   font-weight: 500;
   background-color: var(--white);
-  box-sizing: border-box;
 }
 
 /* Input Panel */
@@ -41,10 +51,29 @@ body {
   flex-direction: column;
   width: 20vw;
   min-width: 280px;
+  height: 100vh;
   gap: 12px;
   padding: 24px 16px;
-  align-items: stretch;
-  background-color: #f8f8f8;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Scrollbar styling */
+.input::-webkit-scrollbar {
+  width: 8px;
+}
+
+.input::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.input::-webkit-scrollbar-thumb {
+  background: var(--dark-gray);
+  border-radius: 4px;
+}
+
+.input::-webkit-scrollbar-thumb:hover {
+  background: #999;
 }
 
 /* Lens Entry Card */
@@ -57,10 +86,9 @@ body {
   width: 100%;
   background: var(--white);
   border-radius: 16px;
-  box-sizing: border-box;
+  border: 4px solid var(--light-gray);
+  flex-shrink: 0;
 }
-
-.entry:hover {}
 
 /* Labels */
 .entry label {
@@ -82,7 +110,6 @@ body {
   border-radius: 4px;
   color: var(--black);
   outline: none;
-  box-sizing: border-box;
 }
 
 .entry input:hover {
@@ -115,6 +142,7 @@ body {
   transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   position: relative;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .input button:disabled {
@@ -197,6 +225,7 @@ body {
 /* Renderer */
 .renderer {
   flex: 1;
+  height: calc(100vh - 32px);
   margin: 16px;
   border: 4px solid var(--dark-gray);
   border-radius: 28px;

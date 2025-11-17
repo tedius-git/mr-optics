@@ -7,35 +7,25 @@ interface RendererProps {
   distances: Signal<number[]>;
 }
 
-const DotGrid = (props: { width: number; height: number }) => {
-  const spacing = 20;
-  const dotRadius = 2;
-  return (
-    <>
-      <defs>
-        <pattern
-          id="dotPattern"
-          x="0"
-          y="0"
-          width={spacing}
-          height={spacing}
-          patternUnits="userSpaceOnUse"
-        >
-          <circle
-            cx={spacing / 2}
-            cy={spacing / 2}
-            r={dotRadius}
-            fill="var(--dark-gray)"
-          />
-        </pattern>
-      </defs>
-      <rect
-        width={props.width + 20}
-        height={props.height + 20}
-        fill="url(#dotPattern)"
-      />
-    </>
-  );
+const DotGrid = (props: { width: number; height: number; centerY: number }) => {
+  const spacing = props.height / 24;
+  const dotRadius = props.height / 300;
+  
+  // Generate fixed grid points
+  const dots = [];
+  const cols = Math.ceil(props.width / spacing) + 2;
+  const rows = Math.ceil(props.height / spacing) + 2;
+  
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const x = col * spacing;
+      const y = row * spacing;
+      dots.push(<circle key={`${col}-${row}`} cx={x} cy={props.centerY - y} r={dotRadius} fill="var(--dark-gray)" />);
+      dots.push(<circle key={`${col}-${row}`} cx={x} cy={props.centerY + y} r={dotRadius} fill="var(--dark-gray)" />);
+    }
+  }
+  
+  return <g className="dot-grid">{dots}</g>;
 };
 
 /**
@@ -145,7 +135,11 @@ export const LensRenderer = ({ lenses, distances }: RendererProps) => {
       viewBox={`0 0 ${viewBoxWidth} ${dimensions.height}`}
       preserveAspectRatio="xMidYMid meet" // Maintain aspect ratio when scaling
     >
-      <DotGrid width={viewBoxWidth} height={dimensions.height} />
+      <DotGrid
+        width={viewBoxWidth}
+        height={dimensions.height}
+        centerY={centerY}
+      />
       {/* Optical axis - horizontal dashed line through center */}
       <line
         x1={0}

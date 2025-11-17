@@ -146,13 +146,14 @@ const LensConfig = ({
           id={powerId}
           name="Power"
           type="number"
+          min="-7.8"
           step="0.1"
           value={lens.power}
           onChange={(e) => {
             const newPower = parseFloat(e.currentTarget.value);
             // Only update if valid number and not zero
             // Zero power is excluded as it would create invalid optical calculations
-            if (!isNaN(newPower) && newPower !== 0) {
+            if (!isNaN(newPower) && newPower !== 0 && newPower > -7.8) {
               updateLensPower(lenses, lens.id, newPower);
             }
           }}

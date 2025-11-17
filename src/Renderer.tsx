@@ -16,7 +16,7 @@ const DotGrid = (props: { width: number; height: number; centerY: number }) => {
   const cols = Math.ceil(props.width / spacing) + 2;
   const rows = Math.ceil(props.height / spacing) + 2;
 
-  for (let row = 0; row < rows; row++) {
+  for (let row = 1; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       const x = col * spacing;
       const y = row * spacing;
@@ -206,7 +206,7 @@ export const LensRenderer = ({ lenses, distances }: RendererProps) => {
         // For positive radius (converging lenses), thickness is 0
         let d;
         if (lens.r && lens.r < 0) {
-          d = 15 / lens.r;
+          d = 25 / lens.r;
         } else {
           d = 0;
         }

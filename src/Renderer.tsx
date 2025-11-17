@@ -10,21 +10,37 @@ interface RendererProps {
 const DotGrid = (props: { width: number; height: number; centerY: number }) => {
   const spacing = props.height / 24;
   const dotRadius = props.height / 300;
-  
+
   // Generate fixed grid points
   const dots = [];
   const cols = Math.ceil(props.width / spacing) + 2;
   const rows = Math.ceil(props.height / spacing) + 2;
-  
+
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
       const x = col * spacing;
       const y = row * spacing;
-      dots.push(<circle key={`${col}-${row}`} cx={x} cy={props.centerY - y} r={dotRadius} fill="var(--dark-gray)" />);
-      dots.push(<circle key={`${col}-${row}`} cx={x} cy={props.centerY + y} r={dotRadius} fill="var(--dark-gray)" />);
+      dots.push(
+        <circle
+          key={`${col}-${row}`}
+          cx={x}
+          cy={props.centerY - y}
+          r={dotRadius}
+          fill="var(--dark-gray)"
+        />,
+      );
+      dots.push(
+        <circle
+          key={`${col}-${row}`}
+          cx={x}
+          cy={props.centerY + y}
+          r={dotRadius}
+          fill="var(--dark-gray)"
+        />,
+      );
     }
   }
-  
+
   return <g className="dot-grid">{dots}</g>;
 };
 
@@ -98,27 +114,38 @@ export const LensRenderer = ({ lenses, distances }: RendererProps) => {
     return totalDistance;
   };
 
-  /** Simplified: rays converge/diverge based on lens power
+  /** Ray tracing using the lensmaker's equation for thin lenses
    */
   const simpleRayTrace = (startY: number, lenses: Lens[]): string => {
     let pathData = `M 0 ${startY}`;
-    let currentY = startY;
+    let currentX = 0;
+    let currentYPos = startY;
+    let currentSlope = 0; // Initial slope (rays parallel to axis)
+    const pixelsPerMeter = 200;
 
     lenses.forEach((lens, i) => {
       const lensX = calculateLensX(i);
 
-      // Line to lens
-      pathData += ` L ${lensX} ${currentY}`;
+      // Propagate the ray from current position to the lens
+      const deltaX = lensX - currentX;
+      currentYPos = currentYPos + currentSlope * deltaX;
+      pathData += ` L ${lensX} ${currentYPos}`;
 
-      // Deflection based on power and distance from axis
-      const deflection = lens.power * (currentY - centerY) * 0.25; // times 0.25 for better visualization
-      currentY -= deflection;
+      // Calculate the ray height relative to the optical axis
+      const h = currentYPos - centerY;
+
+      // In terms of slope: Δm = -h × P / pixelsPerMeter
+      const deltaSlope = -(h / pixelsPerMeter) * lens.power;
+
+      currentSlope += deltaSlope * 0.1; // times 0.1 for better visualization
+      currentX = lensX; // Update current X position
     });
 
-    // Calculate total width needed
-    const lastLensX = calculateLensX(lenses.length - 1);
-    const endX = Math.max(dimensions.width, lastLensX + 100);
-    pathData += ` L ${endX} ${currentY}`;
+    // Extend the ray to the end of the canvas
+    const endX = Math.max(dimensions.width, currentX + 100);
+    const finalY = currentYPos + currentSlope * (endX - currentX);
+    pathData += ` L ${endX} ${finalY}`;
+
     return pathData;
   };
 

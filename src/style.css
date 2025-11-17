@@ -143,9 +143,12 @@ body {
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
 }
 
 .input button .icon {
+  padding-top: 5px;
   filter: invert(100%);
 }
 
@@ -164,8 +167,6 @@ body {
   margin-top: 8px;
   margin-bottom: 8px;
   display: flex;
-  align-items: center;
-  justify-content: center;
   align-self: center;
 }
 
@@ -213,8 +214,6 @@ body {
   font-size: 14px;
   letter-spacing: 0.1px;
   display: flex;
-  align-items: center;
-  justify-content: center;
   justify-self: end;
 }
 
@@ -234,7 +233,7 @@ body {
 }
 
 .delete-button:hover {
-  width: 100%;
+  width: 120px;
   border-radius: 50px;
   background-color: var(--light-red);
 }
@@ -344,12 +343,16 @@ body {
     min-width: unset;
     height: auto;
     max-height: 50vh;
+    padding-top: 4px;
+    padding-bottom: 4px;
     order: 2; /* The input goes at the bottom */
   }
 
   .renderer {
-    width: calc(100% - 32px);
+    width: calc(100% - 10px);
     height: 50vh;
+    margin: 5px;
+    margin-bottom: 0px;
     order: 1; /* The renderer goes at the top */
   }
 }

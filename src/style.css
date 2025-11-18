@@ -375,7 +375,7 @@ input[type="number"] {
     width: 100%;
     min-width: unset;
     height: auto;
-    max-height: 30vh;
+    max-height: 40vh;
     padding-top: 4px;
     padding-bottom: 4px;
     order: 2; /* The input goes at the bottom */
@@ -383,7 +383,7 @@ input[type="number"] {
 
   .renderer {
     width: calc(100% - 10px);
-    height: 80svh;
+    height: 60svh;
     margin: 5px;
     margin-bottom: 0px;
     order: 1; /* The renderer goes at the top */

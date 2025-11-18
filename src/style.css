@@ -308,7 +308,6 @@ input[type="number"] {
 
 /* Renderer */
 .renderer {
-  flex: 1;
   height: calc(100vh - 32px);
   margin: 16px;
   border: 4px solid var(--dark-gray);
@@ -376,7 +375,7 @@ input[type="number"] {
     width: 100%;
     min-width: unset;
     height: auto;
-    max-height: 50vh;
+    max-height: 30vh;
     padding-top: 4px;
     padding-bottom: 4px;
     order: 2; /* The input goes at the bottom */
@@ -384,7 +383,7 @@ input[type="number"] {
 
   .renderer {
     width: calc(100% - 10px);
-    height: 50vh;
+    height: 80svh;
     margin: 5px;
     margin-bottom: 0px;
     order: 1; /* The renderer goes at the top */

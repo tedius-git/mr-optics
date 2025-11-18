@@ -314,6 +314,7 @@ input[type="number"] {
   border-radius: 28px;
   background-color: var(--white);
   overflow: hidden;
+  flex: 1;
 }
 
 .renderer div {

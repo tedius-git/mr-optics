@@ -20,8 +20,8 @@ const addLens = (lenses: Signal<Lens[]>, distances: Signal<number[]>) => {
       id: nextId++, // Assign unique ID and increment counter
       type: "biconvex", // Default lens type
       index: 1.5, // Default refractive index (minimum allowed)
-      power: 6,
-      r: calcRadius(6, 1.5, "biconvex"),
+      power: 3,
+      r: calcRadius(3, 1.5, "biconvex"),
     }];
   }
   if (length > 0) {
@@ -62,7 +62,7 @@ const updateLensPower = (
   lenses.value = lenses.value.map((l) => {
     // Only update the lens with matching ID
     // Zero power is excluded as it would create invalid optical calculations
-    if (l.id === id && newPower !== 0 && newPower > -7.8) {
+    if (l.id === id && newPower !== 0 && newPower > -5 && newPower < 5) {
       // Recalculate radius based on new power, current index, and lens type
       const radius = calcRadius(newPower, l.index, l.type);
       return {

@@ -137,7 +137,7 @@ export const LensRenderer = ({ lenses, distances }: RendererProps) => {
       // In terms of slope: Δm = -h × P / pixelsPerMeter
       const deltaSlope = -(h / pixelsPerMeter) * lens.power;
 
-      currentSlope += deltaSlope * 0.1; // times 0.1 for better visualization
+      currentSlope += deltaSlope * 0.25; // times 0.1 for better visualization
       currentX = lensX; // Update current X position
     });
 
@@ -206,7 +206,7 @@ export const LensRenderer = ({ lenses, distances }: RendererProps) => {
         // For positive radius (converging lenses), thickness is 0
         let d;
         if (lens.r && lens.r < 0) {
-          d = 25 / lens.r;
+          d = 35 / lens.r - 10;
         } else {
           d = 0;
         }

@@ -1,4 +1,4 @@
-// ../../../../.cache/deno/npm/registry.npmjs.org/preact/10.27.2/dist/preact.module.js
+// ../../.cache/deno/npm/registry.npmjs.org/preact/10.27.2/dist/preact.module.js
 var n;
 var l;
 var u;
@@ -286,7 +286,7 @@ n = v.slice, l = {
   return n3.__v.__b - l4.__v.__b;
 }, $.__r = 0, f = /(PointerCapture)$|Capture$/i, c = 0, s = F(false), a = F(true), h = 0;
 
-// ../../../../.cache/deno/npm/registry.npmjs.org/preact/10.27.2/jsx-runtime/dist/jsxRuntime.module.js
+// ../../.cache/deno/npm/registry.npmjs.org/preact/10.27.2/jsx-runtime/dist/jsxRuntime.module.js
 var f2 = 0;
 var i2 = Array.isArray;
 function u2(e4, t4, n3, o4, i5, u5) {
@@ -314,7 +314,7 @@ function u2(e4, t4, n3, o4, i5, u5) {
   return l.vnode && l.vnode(l4), l4;
 }
 
-// ../../../../.cache/deno/npm/registry.npmjs.org/preact/10.27.2/hooks/dist/hooks.module.js
+// ../../.cache/deno/npm/registry.npmjs.org/preact/10.27.2/hooks/dist/hooks.module.js
 var t2;
 var r2;
 var u3;
@@ -464,7 +464,7 @@ function D2(n3, t4) {
   return "function" == typeof t4 ? t4(n3) : t4;
 }
 
-// ../../../../.cache/deno/npm/registry.npmjs.org/@preact/signals-core/1.12.1/dist/signals-core.module.js
+// ../../.cache/deno/npm/registry.npmjs.org/@preact/signals-core/1.12.1/dist/signals-core.module.js
 var i4 = Symbol.for("preact-signals");
 function t3() {
   if (!(s3 > 1)) {
@@ -851,7 +851,7 @@ function E2(i5, t4) {
   return o4;
 }
 
-// ../../../../.cache/deno/npm/registry.npmjs.org/@preact/signals/2.3.2/dist/signals.module.js
+// ../../.cache/deno/npm/registry.npmjs.org/@preact/signals/2.3.2/dist/signals.module.js
 var h4;
 var p4;
 var w4;
@@ -1084,7 +1084,7 @@ function F2() {
 // src/lenses.ts
 function calcRadius(power, index, type) {
   if (power === 0) {
-    return null;
+    return 0;
   }
   if (type === "biconvex") {
     return 2 * (index - 1) / power;
@@ -1095,29 +1095,44 @@ function calcRadius(power, index, type) {
 
 // src/Config.tsx
 var nextId = 1;
-var addLens = (lenses2) => {
-  if (lenses2.value.length < 3) {
+var addLens = (lenses2, distances2) => {
+  const length = lenses2.value.length;
+  if (length < 3) {
     lenses2.value = [
       ...lenses2.value,
       {
         id: nextId++,
         type: "biconvex",
-        index: 1.5
+        index: 1.5,
+        power: 3,
+        r: calcRadius(3, 1.5, "biconvex")
       }
     ];
   }
+  if (length > 0) {
+    distances2.value = [
+      ...distances2.value,
+      1
+    ];
+  }
 };
-var deleteLens = (lenses2, id) => {
+var deleteLens = (lenses2, distances2, id) => {
+  const deletedIndex = lenses2.value.findIndex((l4) => l4.id === id);
   lenses2.value = lenses2.value.filter((l4) => l4.id !== id);
+  if (deletedIndex < lenses2.value.length) {
+    distances2.value = distances2.value.filter((_4, i5) => i5 !== deletedIndex);
+  } else if (distances2.value.length > 0) {
+    distances2.value = distances2.value.slice(0, -1);
+  }
 };
 var updateLensPower = (lenses2, id, newPower) => {
   lenses2.value = lenses2.value.map((l4) => {
-    if (l4.id === id) {
+    if (l4.id === id && newPower !== 0 && newPower > -5 && newPower < 5) {
       const radius = calcRadius(newPower, l4.index, l4.type);
       return {
         ...l4,
         power: newPower,
-        r: radius ?? void 0
+        r: radius
       };
     }
     return l4;
@@ -1126,175 +1141,384 @@ var updateLensPower = (lenses2, id, newPower) => {
 var updateLensIndex = (lenses2, id, newIndex) => {
   if (newIndex >= 1.5) {
     lenses2.value = lenses2.value.map((l4) => {
-      if (l4.id === id && l4.power) {
+      if (l4.id === id) {
         const radius = calcRadius(l4.power, newIndex, l4.type);
         return {
           ...l4,
           index: newIndex,
-          r: radius ?? void 0
-        };
-      } else if (l4.id === id) {
-        return {
-          ...l4,
-          index: newIndex
+          r: radius
         };
       }
       return l4;
     });
   }
 };
-var LensConfig = ({ lens, lenses: lenses2 }) => {
+var updateDistance = (distances2, index, newDistance) => {
+  if (!isNaN(newDistance) && newDistance >= 0.2) {
+    distances2.value = distances2.value.map((d4, i5) => i5 === index ? newDistance : d4);
+  }
+};
+var LensConfig = ({ lens, lenses: lenses2, distances: distances2 }) => {
   const powerId = `power-${lens.id}`;
   const indexId = `index-${lens.id}`;
-  return /* @__PURE__ */ u2("div", {
-    className: "entry",
+  const lensIndex = lenses2.value.indexOf(lens);
+  const distance = distances2.value[lensIndex];
+  const distanceId = `distance-${lens.id}`;
+  return /* @__PURE__ */ u2(k, {
     children: [
-      /* @__PURE__ */ u2("label", {
-        htmlFor: powerId,
-        children: "Potencia"
-      }),
-      /* @__PURE__ */ u2("input", {
-        id: powerId,
-        name: "Power",
-        type: "number",
-        step: "0.1",
-        value: lens.power || "",
-        onChange: (e4) => {
-          const newPower = parseFloat(e4.currentTarget.value);
-          if (!isNaN(newPower) && newPower !== 0) {
-            updateLensPower(lenses2, lens.id, newPower);
-          }
-        }
-      }),
-      /* @__PURE__ */ u2("label", {
-        htmlFor: indexId,
-        children: "Indice"
-      }),
-      /* @__PURE__ */ u2("input", {
-        id: indexId,
-        name: "index",
-        type: "number",
-        min: "1.5",
-        step: "0.1",
-        value: lens.index,
-        onChange: (e4) => {
-          const newIndex = parseFloat(e4.currentTarget.value);
-          if (!isNaN(newIndex) && newIndex >= 1.5) {
-            updateLensIndex(lenses2, lens.id, newIndex);
-          }
-        },
-        onBlur: (e4) => {
-          const currentValue = parseFloat(e4.currentTarget.value);
-          if (isNaN(currentValue) || currentValue < 1.5) {
-            updateLensIndex(lenses2, lens.id, 1.5);
-          }
-        }
-      }),
-      /* @__PURE__ */ u2("p", {
+      /* @__PURE__ */ u2("div", {
+        className: "entry",
         children: [
-          "R:",
-          lens.r ? lens.r : ""
+          /* @__PURE__ */ u2("label", {
+            htmlFor: powerId,
+            children: "Potencia"
+          }),
+          /* @__PURE__ */ u2("div", {
+            className: "input-group",
+            children: [
+              /* @__PURE__ */ u2("button", {
+                type: "button",
+                className: "stepper-button",
+                onClick: () => updateLensPower(lenses2, lens.id, Math.floor((lens.power - 0.1) * 10) / 10),
+                children: "\u2212"
+              }),
+              /* @__PURE__ */ u2("input", {
+                id: powerId,
+                name: "Power",
+                type: "number",
+                min: "-7.8",
+                step: "0.1",
+                value: lens.power,
+                onChange: (e4) => {
+                  const newPower = parseFloat(e4.currentTarget.value);
+                  if (!isNaN(newPower)) {
+                    updateLensPower(lenses2, lens.id, newPower);
+                  }
+                }
+              }),
+              /* @__PURE__ */ u2("button", {
+                type: "button",
+                className: "stepper-button",
+                onClick: () => updateLensPower(lenses2, lens.id, Math.ceil((lens.power + 0.1) * 10) / 10),
+                children: "+"
+              })
+            ]
+          }),
+          /* @__PURE__ */ u2("label", {
+            htmlFor: indexId,
+            children: "\xCDndice"
+          }),
+          /* @__PURE__ */ u2("div", {
+            className: "input-group",
+            children: [
+              /* @__PURE__ */ u2("button", {
+                type: "button",
+                className: "stepper-button",
+                onClick: () => updateLensIndex(lenses2, lens.id, Math.floor((lens.index - 0.1) * 10) / 10),
+                children: "\u2212"
+              }),
+              /* @__PURE__ */ u2("input", {
+                id: indexId,
+                name: "index",
+                type: "number",
+                min: "1.5",
+                step: "0.1",
+                value: lens.index,
+                onChange: (e4) => {
+                  const newIndex = parseFloat(e4.currentTarget.value);
+                  if (!isNaN(newIndex) && newIndex >= 1.5) {
+                    updateLensIndex(lenses2, lens.id, newIndex);
+                  }
+                },
+                onBlur: (e4) => {
+                  const currentValue = parseFloat(e4.currentTarget.value);
+                  if (isNaN(currentValue) || currentValue < 1.5) {
+                    updateLensIndex(lenses2, lens.id, 1.5);
+                  }
+                }
+              }),
+              /* @__PURE__ */ u2("button", {
+                type: "button",
+                className: "stepper-button",
+                onClick: () => updateLensIndex(lenses2, lens.id, Math.ceil((lens.index + 0.1) * 10) / 10),
+                children: "+"
+              })
+            ]
+          }),
+          /* @__PURE__ */ u2("p", {
+            children: [
+              "R: ",
+              Math.round(lens.r * 1e3) / 1e3
+            ]
+          }),
+          /* @__PURE__ */ u2("button", {
+            type: "button",
+            className: "delete-button",
+            onClick: () => deleteLens(lenses2, distances2, lens.id),
+            children: [
+              /* @__PURE__ */ u2("span", {
+                class: "icon",
+                children: /* @__PURE__ */ u2("img", {
+                  src: "./assets/delete.svg"
+                })
+              }),
+              /* @__PURE__ */ u2("span", {
+                class: "text",
+                children: "Eliminar lente"
+              })
+            ]
+          })
         ]
       }),
-      /* @__PURE__ */ u2("button", {
-        type: "button",
-        onClick: () => deleteLens(lenses2, lens.id),
-        children: "-"
-      })
+      distance !== void 0 ? /* @__PURE__ */ u2("div", {
+        className: "entry",
+        children: /* @__PURE__ */ u2("div", {
+          className: "input-group",
+          children: [
+            /* @__PURE__ */ u2("label", {
+              htmlFor: distanceId,
+              children: "Distancia"
+            }),
+            /* @__PURE__ */ u2("button", {
+              type: "button",
+              className: "stepper-button",
+              onClick: () => updateDistance(distances2, lensIndex, Math.floor((distance - 0.1) * 10) / 10),
+              children: "\u2212"
+            }),
+            /* @__PURE__ */ u2("input", {
+              id: distanceId,
+              name: "distance",
+              type: "number",
+              min: "0.2",
+              step: "0.1",
+              value: distance,
+              onChange: (e4) => {
+                const newDistance = parseFloat(e4.currentTarget.value);
+                updateDistance(distances2, lensIndex, newDistance);
+              },
+              onBlur: (e4) => {
+                const currentValue = parseFloat(e4.currentTarget.value);
+                if (isNaN(currentValue) || currentValue < 0.2) {
+                  updateDistance(distances2, lensIndex, 0.2);
+                }
+              }
+            }),
+            /* @__PURE__ */ u2("button", {
+              type: "button",
+              className: "stepper-button",
+              onClick: () => updateDistance(distances2, lensIndex, Math.floor((distance + 0.1) * 10) / 10),
+              children: "+"
+            })
+          ]
+        })
+      }) : null
     ]
   });
 };
-var LensConfigurator = ({ lenses: lenses2 }) => {
+var LensConfigurator = ({ lenses: lenses2, distances: distances2 }) => {
   return /* @__PURE__ */ u2("div", {
     className: "input",
     children: [
-      /* @__PURE__ */ u2("div", {
-        children: /* @__PURE__ */ u2("button", {
-          type: "button",
-          className: "add-button",
-          onClick: () => addLens(lenses2),
-          children: "+"
-        })
+      /* @__PURE__ */ u2("button", {
+        type: "button",
+        className: "add-button",
+        title: "3 Max",
+        disabled: lenses2.value.length >= 3,
+        onClick: () => addLens(lenses2, distances2),
+        children: [
+          /* @__PURE__ */ u2("span", {
+            class: "icon",
+            children: /* @__PURE__ */ u2("img", {
+              src: "./assets/add.svg"
+            })
+          }),
+          /* @__PURE__ */ u2("span", {
+            class: "text",
+            children: "A\xF1adir lente"
+          })
+        ]
       }),
       lenses2.value.map((lens) => /* @__PURE__ */ u2(LensConfig, {
         lens,
-        lenses: lenses2
+        lenses: lenses2,
+        distances: distances2
       }, lens.id))
     ]
   });
 };
 
 // src/Renderer.tsx
-var LensRenderer = ({ lenses: lenses2 }) => {
+var DotGrid = (props) => {
+  const spacing = props.height / 24;
+  const dotRadius = props.height / 300;
+  const dots = [];
+  const cols = Math.ceil(props.width / spacing) + 2;
+  const rows = Math.ceil(props.height / spacing) + 2;
+  for (let row = 1; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const x3 = col * spacing;
+      const y5 = row * spacing;
+      dots.push(/* @__PURE__ */ u2("circle", {
+        cx: x3,
+        cy: props.centerY - y5,
+        r: dotRadius,
+        fill: "var(--dark-gray)"
+      }, `${col}-${row}`));
+      dots.push(/* @__PURE__ */ u2("circle", {
+        cx: x3,
+        cy: props.centerY + y5,
+        r: dotRadius,
+        fill: "var(--dark-gray)"
+      }, `${col}-${row}`));
+    }
+  }
+  return /* @__PURE__ */ u2("g", {
+    className: "dot-grid",
+    children: dots
+  });
+};
+var LensRenderer = ({ lenses: lenses2, distances: distances2 }) => {
   const svgRef = A2(null);
   const [dimensions, setDimensions] = d2({
     width: 800,
     height: 400
   });
   y2(() => {
+    if (!svgRef.current) return;
     const updateDimensions = () => {
-      if (svgRef.current) {
-        const rect = svgRef.current.getBoundingClientRect();
-        setDimensions({
-          width: rect.width,
-          height: rect.height
-        });
-      }
+      if (!svgRef.current) return;
+      const rect = svgRef.current.getBoundingClientRect();
+      setDimensions({
+        width: rect.width,
+        height: rect.height
+      });
     };
+    const observer = new ResizeObserver(() => {
+      updateDimensions();
+    });
+    observer.observe(svgRef.current);
     updateDimensions();
-    globalThis.addEventListener("resize", updateDimensions);
-    return () => globalThis.removeEventListener("resize", updateDimensions);
+    return () => observer.disconnect();
   }, []);
   const centerY = dimensions.height / 2;
   const currentLenses = lenses2.value.filter((l4) => l4.r);
-  const lensesDistance = dimensions.width / (currentLenses.length + 1);
-  const h5 = 200;
+  const h5 = dimensions.height / 3;
+  const calculateLensX = (index) => {
+    if (index === 0) {
+      return 200;
+    }
+    let totalDistance = 200;
+    const pixelsPerMeter = 200;
+    for (let i5 = 0; i5 < index; i5++) {
+      const distance = distances2.value[i5] || 1;
+      totalDistance += distance * pixelsPerMeter;
+    }
+    return totalDistance;
+  };
+  const simpleRayTrace = (startY, lenses3) => {
+    let pathData = `M 0 ${startY}`;
+    let currentX = 0;
+    let currentYPos = startY;
+    let currentSlope = 0;
+    const pixelsPerMeter = 200;
+    lenses3.forEach((lens, i5) => {
+      const lensX = calculateLensX(i5);
+      const deltaX = lensX - currentX;
+      currentYPos = currentYPos + currentSlope * deltaX;
+      pathData += ` L ${lensX} ${currentYPos}`;
+      const h6 = currentYPos - centerY;
+      const deltaSlope = -(h6 / pixelsPerMeter) * lens.power;
+      currentSlope += deltaSlope * 0.25;
+      currentX = lensX;
+    });
+    const endX = Math.max(dimensions.width, currentX + 100);
+    const finalY = currentYPos + currentSlope * (endX - currentX);
+    pathData += ` L ${endX} ${finalY}`;
+    return pathData;
+  };
+  const lastLensX = currentLenses.length > 0 ? calculateLensX(currentLenses.length - 1) + 100 : dimensions.width;
+  const viewBoxWidth = Math.max(dimensions.width, lastLensX);
   return /* @__PURE__ */ u2("svg", {
     ref: svgRef,
     className: "renderer",
-    viewBox: `0 0 ${dimensions.width} ${dimensions.height}`,
+    viewBox: `0 0 ${viewBoxWidth} ${dimensions.height}`,
     preserveAspectRatio: "xMidYMid meet",
     children: [
+      /* @__PURE__ */ u2(DotGrid, {
+        width: viewBoxWidth,
+        height: dimensions.height,
+        centerY
+      }),
       /* @__PURE__ */ u2("line", {
         x1: 0,
         y1: centerY,
-        x2: dimensions.width,
+        x2: viewBoxWidth,
         y2: centerY,
         stroke: "#666",
         "stroke-width": 2,
-        "stroke-dasharray": "10 5"
+        "stroke-dasharray": "20 10"
+      }),
+      [
+        1,
+        2,
+        3,
+        4
+      ].map((i5) => {
+        return /* @__PURE__ */ u2(k, {
+          children: [
+            /* @__PURE__ */ u2("path", {
+              className: "ray",
+              // h / 8 because there are 4 rays in one half of a lens
+              d: simpleRayTrace(centerY - h5 / 8 * i5, lenses2.value)
+            }, `ray-up-${i5}`),
+            /* @__PURE__ */ u2("path", {
+              className: "ray",
+              d: simpleRayTrace(centerY + h5 / 8 * i5, lenses2.value)
+            }, `ray-down-${i5}`)
+          ]
+        });
       }),
       currentLenses.map((lens, i5) => {
-        const lensCenterX = lensesDistance * (i5 + 1);
+        const lensCenterX = calculateLensX(i5);
         let d4;
         if (lens.r && lens.r < 0) {
-          d4 = 15 / lens.r;
+          d4 = 35 / lens.r - 10;
         } else {
           d4 = 0;
         }
-        return /* @__PURE__ */ u2(k, {
+        return /* @__PURE__ */ u2("g", {
           children: [
             /* @__PURE__ */ u2("line", {
               x1: lensCenterX,
-              y1: dimensions.height / 3,
+              y1: h5 - 20,
               x2: lensCenterX,
-              y2: 2 * dimensions.height / 3,
+              y2: 2 * h5 + 20,
               stroke: "#000000",
               "stroke-width": 2,
-              "stroke-dasharray": "20 10"
-            }, lens.id),
+              "stroke-dasharray": "10 5"
+            }),
             /* @__PURE__ */ u2("path", {
+              className: "lens",
               d: `
-M ${lensCenterX + d4 / 2},${centerY - h5 / 2}
-L ${lensCenterX - d4 / 2},${centerY - h5 / 2}
-M ${lensCenterX + d4 / 2},${centerY - h5 / 2}
-  A ${lens.r ? lens.r * 1e3 : 1},${lens.r ? lens.r * 1e3 : 1} 0 0 1 ${lensCenterX + d4 / 2} ${centerY + h5 / 2}
-L ${lensCenterX - d4 / 2},${centerY + h5 / 2}
-  A ${lens.r ? lens.r * 1e3 : 1},${lens.r ? lens.r * 1e3 : 1} 0 0 1 ${lensCenterX - d4 / 2} ${centerY - h5 / 2}
-`
+                M ${lensCenterX + d4 / 2},${centerY - h5 / 2}
+                L ${lensCenterX - d4 / 2},${centerY - h5 / 2}
+                M ${lensCenterX + d4 / 2},${centerY - h5 / 2}
+                  A ${lens.r ? lens.r * 1e3 : 1},${lens.r ? lens.r * 1e3 : 1} 0 0 1 ${lensCenterX + d4 / 2} ${centerY + h5 / 2}
+                L ${lensCenterX - d4 / 2},${centerY + h5 / 2}
+                  A ${lens.r ? lens.r * 1e3 : 1},${lens.r ? lens.r * 1e3 : 1} 0 0 1 ${lensCenterX - d4 / 2} ${centerY - h5 / 2}
+              `
+            }),
+            i5 < currentLenses.length - 1 && distances2.value[i5] !== void 0 && /* @__PURE__ */ u2("text", {
+              x: (lensCenterX + calculateLensX(i5 + 1)) / 2,
+              y: centerY + h5 / 2 + 30,
+              "text-anchor": "middle",
+              fill: "var(--black)",
+              "font-size": "14",
+              "font-weight": "bold",
+              children: distances2.value[i5].toFixed(2)
             })
           ]
-        });
+        }, lens.id);
       })
     ]
   });
@@ -1302,20 +1526,24 @@ L ${lensCenterX - d4 / 2},${centerY + h5 / 2}
 
 // src/main.tsx
 var lenses = d3([]);
+var distances = d3([]);
 var App = () => {
   return /* @__PURE__ */ u2("div", {
     className: "app",
     children: [
       /* @__PURE__ */ u2(LensConfigurator, {
-        lenses
+        lenses,
+        distances
       }),
       /* @__PURE__ */ u2(LensRenderer, {
-        lenses
+        lenses,
+        distances
       })
     ]
   });
 };
 G(/* @__PURE__ */ u2(App, {}), document.body);
 export {
+  distances,
   lenses
 };

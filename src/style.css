@@ -50,7 +50,7 @@ input[type="number"] {
 }
 
 /* Input Panel */
-.input {
+.lens-configurator {
   display: flex;
   flex-direction: column;
   width: 20vw;
@@ -63,28 +63,25 @@ input[type="number"] {
 }
 
 /* Scrollbar styling */
-.input::-webkit-scrollbar {
+.lens-configurator::-webkit-scrollbar {
   width: 8px;
 }
 
-.input::-webkit-scrollbar-track {
+.lens-configurator::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.input::-webkit-scrollbar-thumb {
+.lens-configurator::-webkit-scrollbar-thumb {
   background: var(--dark-gray);
   border-radius: 4px;
 }
 
-.input::-webkit-scrollbar-thumb:hover {
+.lens-configurator::-webkit-scrollbar-thumb:hover {
   background: #999;
 }
 
 /* Lens Entry Card */
-.entry {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 12px 8px;
+.card {
   padding: 16px;
   width: 100%;
   background: var(--white);
@@ -95,7 +92,7 @@ input[type="number"] {
 }
 
 /* Labels */
-.entry label {
+.card label {
   font-size: 14px;
   font-weight: 600;
   align-self: center;
@@ -103,7 +100,7 @@ input[type="number"] {
 }
 
 /* Input Fields */
-.entry input {
+.card input {
   width: 100%;
   padding: 8px 12px;
   font-family: "Nunito", sans-serif;
@@ -117,26 +114,29 @@ input[type="number"] {
   text-align: center;
 }
 
-.entry input:hover {
+.card input:hover {
   background-color: #e0e0e0;
 }
 
-.entry input:focus {
+.card input:focus {
   border: 3px solid var(--blue);
   background-color: var(--white);
 }
 
 /* Input Group (for inputs with stepper buttons) */
 .input-group {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  width: 100%;
+  grid-column: 1 / -1;
 }
 
-.input-group input {
-  flex: 1;
-  min-width: 0;
+/* Slider Customization */
+.slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--dark-gray);
+  outline: none;
+  margin: 10px 0;
 }
 
 /* Radius Display */
